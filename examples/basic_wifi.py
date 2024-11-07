@@ -1,7 +1,7 @@
-from ADBconnect import USB
+from ADBconnect import WIFI
 import time
 
-phone = USB(device='67e345rf')  # indicate which device we will work with
+phone = WIFI(ip='192.168.0.101')  # indicate which device we will work with
 
 phone.action.screen()  # turn on your phone screen (or turn it off if it's already on)
 

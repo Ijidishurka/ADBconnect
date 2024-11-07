@@ -1,61 +1,62 @@
 # -*- coding: utf-8 -*-
-from .command import adb_command
 import time
 
 
-def get_device_info() -> dict:
-    """Retrieves detailed information about the device."""
-    device_info = {
-        "Model": adb_command('shell getprop ro.product.model').strip(),
-        "Android Version": adb_command('shell getprop ro.build.version.release').strip(),
-        "SDK Version": adb_command('shell getprop ro.build.version.sdk').strip(),
-        "Device": adb_command('shell getprop ro.product.device').strip(),
-        "Manufacturer": adb_command('shell getprop ro.product.manufacturer').strip(),
-        "Board": adb_command('shell getprop ro.product.board').strip(),
-        "Hardware": adb_command('shell getprop ro.product.hardware').strip(),
-        "Serial": adb_command('shell getprop ro.serialno').strip(),
-        "Build ID": adb_command('shell getprop ro.build.display.id').strip(),
-        "Fingerprint": adb_command('shell getprop ro.build.fingerprint').strip(),
-        "Host": adb_command('shell getprop ro.build.host').strip(),
-        "Time": adb_command('shell getprop ro.build.date').strip(),
-    }
-    return device_info
+class Control:
+    def __init__(self, commander):
+        self._adb_command = commander.adb_command
 
-
-def get_apps() -> list:
-    """Gets a list of installed applications on the device.
-    :return: List of applications
-    """
+    def get_device_info(self) -> dict:
+        """Retrieves detailed information about the device."""
+        device_info = {
+            "Model": self._adb_command('shell getprop ro.product.model').strip(),
+            "Android Version": self._adb_command('shell getprop ro.build.version.release').strip(),
+            "SDK Version": self._adb_command('shell getprop ro.build.version.sdk').strip(),
+            "Device": self._adb_command('shell getprop ro.product.device').strip(),
+            "Manufacturer": self._adb_command('shell getprop ro.product.manufacturer').strip(),
+            "Board": self._adb_command('shell getprop ro.product.board').strip(),
+            "Hardware": self._adb_command('shell getprop ro.product.hardware').strip(),
+            "Serial": self._adb_command('shell getprop ro.serialno').strip(),
+            "Build ID": self._adb_command('shell getprop ro.build.display.id').strip(),
+            "Fingerprint": self._adb_command('shell getprop ro.build.fingerprint').strip(),
+            "Host": self._adb_command('shell getprop ro.build.host').strip(),
+            "Time": self._adb_command('shell getprop ro.build.date').strip(),
+        }
+        return device_info
     
-    result = adb_command("shell pm list packages -3")
-    return [line.replace('package:', '').strip() for line in result.splitlines() if line]
-
-
-def run_app(package_name: str):
-    """Launches an application by package name.
-    :return: class for application control
-    """
-    app = Application(package_name)
-    app.launch()
-    return app
-
-
-def stop_app(package_name) -> None:
-    """Stops an application by package name."""
-    adb_command(f"shell am force-stop {package_name}")
+    def get_apps(self) -> list:
+        """Gets a list of installed applications on the device.
+        :return: List of applications
+        """
+        
+        result = self._adb_command("shell pm list packages -3")
+        return [line.replace('package:', '').strip() for line in result.splitlines() if line]
+    
+    def run_app(self, package_name: str):
+        """Launches an application by package name.
+        :return: class for application control
+        """
+        app = Application(package_name, self._adb_command)
+        app.launch()
+        return app
+    
+    def stop_app(self, package_name) -> None:
+        """Stops an application by package name."""
+        self._adb_command(f"shell am force-stop {package_name}")
         
         
 class Application:
-    def __init__(self, package_name):
+    def __init__(self, package_name, adb_command):
         self.package_name = package_name
+        self._adb_command = adb_command
 
     def launch(self) -> None:
         """Launches an application"""
-        adb_command(f"shell monkey -p {self.package_name} -c android.intent.category.LAUNCHER 1")
+        self._adb_command(f"shell monkey -p {self.package_name} -c android.intent.category.LAUNCHER 1")
         
     def close(self) -> None:
         """Stops the application."""
-        adb_command(f"shell am force-stop {self.package_name}")
+        self._adb_command(f"shell am force-stop {self.package_name}")
         
     def restart(self) -> None:
         """Reloads the application."""

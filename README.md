@@ -4,22 +4,42 @@
 ### Installation:  
 Before using ADBconnect, you need to install [ADB](https://developer.android.com/tools/releases/platform-tools?hl=ru).  
 
-### Setup:  
-You can specify the path to your ADB files. For example:  
-
-```python
-import ADBconnect  
-
-ADBconnect.Phone(adb_path=r"C:\Users\ijidishurka\platform-tools")
+### Setup:
+#### USB:  
+To configure the device you can use arguments:  
+```commandline
+adb_path - path to adb
+device - ID of the device to connect (if you don’t specify it, it will try to connect to the first existing one)
+name - device name
 ``` 
-
-You can also specify the device ID that will accept requests:  
+<br>
 
 ```python
-import ADBconnect  
+from ADBconnect import USB
 
-ADBconnect.Phone(device='67e345rf')
-To view the list of available devices, run adb devices in your terminal.
+phone = USB(adb_path=r"C:\Users\ijidishurka\platform-tools", device='67e345rf')
+
+phone.action.tap(100, 100)
+```
+in order to find out the device ID, enter adb devices
+
+<br>
+
+#### WIFI:  
+```commandline
+*ip - device ip address
+adb_path - path to adb
+port - device port (default 5555)
+name - device name
+``` 
+<br>
+
+```python
+from ADBconnect import WIFI
+
+phone = WIFI(adb_path=r"C:\Users\ijidishurka\platform-tools", ip='192.168.0.101')
+
+phone.action.tap(100, 100)
 ```
 
-### Code examples can be found in the `examples` folder.
+### See code examples on our [github](https://github.com/Ijidishurka/ADBconnect/tree/main/examples)
